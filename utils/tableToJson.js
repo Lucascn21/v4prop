@@ -1,12 +1,15 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 
+//This functions creates a matrix from a googlesheet and parses it to an object
 const convert = async function (
   url,
   dataFirstRowSelector,
   dataTableRowsSelector
 ) {
-  const response = await axios.get(url);
+  const response = await axios.get(url).catch(function (error) {
+    throw error;
+  });
   const site = cheerio.load(response.data);
   let headerArray = [];
   site(dataFirstRowSelector).each(function (i) {

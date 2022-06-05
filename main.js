@@ -7,39 +7,41 @@ const tableToJson = require("./utils/tableToJson");
  * @param {string} url google sheet url to parse
  * @param {string} dataFirstRowSelector a google sheet's selector that matches only the first td
  * @param {string} dataTableRowsSelector a google sheet's selector that matches every td
+ * @param {boolean} saveFile should a json file be created?
  * @returns {string} status of the operations
  */
-async function getData(url, dataFirstRowSelector, dataTableRowsSelector) {
+async function getData(
+  url,
+  dataFirstRowSelector,
+  dataTableRowsSelector,
+  saveFile
+) {
   let status = null;
+  let jsonDATA;
   try {
-    let jsonDATA = await tableToJson.convert(
+    jsonDATA = await tableToJson.convert(
       url,
       dataFirstRowSelector,
       dataTableRowsSelector
     );
     status = "jsonData acquired succesfully.";
-    try {
-      fs.writeFileSync("data.json", JSON.stringify(jsonDATA), (err) => {
-        console.error(err);
-      });
+    if (saveFile) {
+      fs.writeFileSync("data.json", JSON.stringify(jsonDATA));
       status += "\njsonData file created succesfully.";
-    } catch (err) {
-      status = "Error.";
-      console.error(err);
     }
   } catch (error) {
-    console.error(error);
+    status = "Error on getData.";
+    console.log(error.message);
+    throw error;
   } finally {
     console.log(status);
-    return status;
+    return jsonDATA;
   }
 }
 
 getData(
   "https://docs.google.com/spreadsheets/u/0/d/1CEBhao3rMe-qtCbAgJTn5ZKQMRFWeAeaiXFpBY3gbHE/gviz/tq?tqx=out:html&tq",
   "table > tbody > tr:first > td",
-  "table > tbody > tr > td"
+  "table > tbody > tr > td",
+  true
 );
-
-
-
